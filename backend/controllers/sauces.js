@@ -71,7 +71,27 @@ exports.likeSauce = (req, res, next) => {
       {
         ...JSON.parse(req.body.sauce)
       } : { ...req.body };
-    Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-      .then(() => res.status(200).json({ message: 'Objet modifié !'}))
-      .catch(error => res.status(400).json({ error }));
-};
+    let instance = { _id: req.params.id }
+    Sauce.findOne({ _id: req.params.id })
+      .then(sauce => {
+        let likes = sauce.likes
+        let dislikes = sauce.dislikes
+        let usersLiked = sauce.usersLiked
+        let usersDisliked = sauce.usersDisliked
+        if (sauceObject.like == 1) {
+            likes = likes + 1
+            usersLiked = usersLiked + sauceObject.userId
+            let fields = { $set: {likes: likes, usersLiked: usersLiked}}
+        }
+        else if (sauceObject.like == -1){
+            dislikes = dislikes + 1
+            usersDisliked = usersDisliked + sauceObject.userId
+            let fields = { $set: {dislike: dislikes, usersDisliked: usersDisliked}}
+        }
+        // let fields = { ...sauceObject, _id: req.params.id }
+        Sauce.updateOne(instance, fields)
+        .then(() => res.status(200).json({ message: 'Objet modifié !', sauceObject}))
+        .catch(error => res.status(400).json({ error }))
+        .catch(error => res.status(500).json({ error }));
+    });
+};  
