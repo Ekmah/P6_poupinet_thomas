@@ -78,15 +78,20 @@ exports.likeSauce = (req, res, next) => {
         let dislikes = sauce.dislikes
         let usersLiked = sauce.usersLiked
         let usersDisliked = sauce.usersDisliked
+        let fields = ""
+        console.log(usersDisliked)
         if (sauceObject.like == 1) {
             likes = likes + 1
             usersLiked = usersLiked + sauceObject.userId
-            let fields = { $set: {likes: likes, usersLiked: usersLiked}}
+            fields = { $set: {likes: likes, usersLiked: usersLiked}}
         }
         else if (sauceObject.like == -1){
             dislikes = dislikes + 1
             usersDisliked = usersDisliked + sauceObject.userId
-            let fields = { $set: {dislike: dislikes, usersDisliked: usersDisliked}}
+            fields = { $set: {dislike: dislikes, usersDisliked: usersDisliked}}
+        }
+        else {
+            fields = ""
         }
         // let fields = { ...sauceObject, _id: req.params.id }
         Sauce.updateOne(instance, fields)
