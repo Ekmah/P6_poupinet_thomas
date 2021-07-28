@@ -66,3 +66,12 @@ exports.getAllSauces = (req, res, next) => {
     }
   );
 };
+exports.likeSauce = (req, res, next) => {
+    const sauceObject = req.file ?
+      {
+        ...JSON.parse(req.body.sauce)
+      } : { ...req.body };
+    Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
+      .then(() => res.status(200).json({ message: 'Objet modifié !'}))
+      .catch(error => res.status(400).json({ error }));
+};
