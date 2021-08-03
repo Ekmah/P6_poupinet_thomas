@@ -18,6 +18,7 @@ exports.getOneSauce = (req, res, next) => {
     _id: req.params.id
   }).then(
     (sauce) => {
+      console.log(process.env);
       res.status(200).json(sauce);
     }
   ).catch(
@@ -66,7 +67,7 @@ exports.getAllSauces = (req, res, next) => {
     }
   );
 };
-exports.likeSauce = (req, res, next) => {
+exports.likeSauce = (req, res) => {
     Sauce.findOne({ _id: req.params.id })
       .then(sauce => {
         const UserId = req.body.userId
@@ -102,6 +103,6 @@ exports.likeSauce = (req, res, next) => {
         return updatedSauce
     })
     .then(() => res.status(200).json({ message: 'Objet modifié !', sauceObject}))
-    .catch(error => res.status(400).json({ error }))
+    .catch(error => res.status(400).json({ error, message: "une erreure!!!" }))
     .catch(error => res.status(500).json({ error }));
 };  
