@@ -67,36 +67,41 @@ exports.getAllSauces = (req, res, next) => {
   );
 };
 exports.likeSauce = (req, res, next) => {
-    const sauceObject = req.file ?
-      {
-        ...JSON.parse(req.body.sauce)
-      } : { ...req.body };
-    let instance = { _id: req.params.id }
     Sauce.findOne({ _id: req.params.id })
       .then(sauce => {
-        let likes = sauce.likes
-        let dislikes = sauce.dislikes
-        let usersLiked = sauce.usersLiked
-        let usersDisliked = sauce.usersDisliked
-        let fields = ""
-        console.log(usersDisliked)
-        if (sauceObject.like == 1) {
-            likes = likes + 1
-            usersLiked = usersLiked + sauceObject.userId
-            fields = { $set: {likes: likes, usersLiked: usersLiked}}
+        const UserId = req.body.userId
+        const userWantsToLike = (req.body.like === 1)
+        const userWantsToCancel = (req.body.like === 0)
+        const userWantsToDislike = (req.body.like === -1)
+        const userCanLike = (!sauce.usersDisliked.includes(userId) || sauce.usersLiked.includes(userId))
+        const userCanDislike = (!sauce.usersLiked.includes(userId) || sauce.usersDisliked.includes(userId))
+        const notFirstVote = (sauce.usersLiked.includes(userId) || sauce.usersDisliked.includes(userId))
+        // user like:
+        if (userWantsToLike && userCanLike) {
+          sauce.usersLiked.push(userId)
         }
-        else if (sauceObject.like == -1){
-            dislikes = dislikes + 1
-            usersDisliked = usersDisliked + sauceObject.userId
-            fields = { $set: {dislike: dislikes, usersDisliked: usersDisliked}}
+        // user dislike:
+        if (userWantsToDislike && userCanDislike) {
+          sauce.usersDisliked.push(userId)
         }
-        else {
-            fields = ""
+        // user cancel:
+        if (userWantsToCancel && notFirstVote) {
+          if (sauce.usersLiked.includes(userId)){
+            let key = sauce.usersLiked.indexOf(userId)
+            sauce.usersLiked.splice(key, 1)
+          }
+          else {
+            let key = sauce.usersDisliked.indexOf(userId)
+            sauce.usersDisliked.splice(key, 1)
+          }
         }
-        // let fields = { ...sauceObject, _id: req.params.id }
-        Sauce.updateOne(instance, fields)
-        .then(() => res.status(200).json({ message: 'Objet modifié !', sauceObject}))
-        .catch(error => res.status(400).json({ error }))
-        .catch(error => res.status(500).json({ error }));
-    });
+        sauce.likes = sauce.usersLiked.length
+        sauce.dislikes = sauce.usersDisliked.length
+        const updatedSauce = sauce
+        updatedSauce.save()
+        return updatedSauce
+    })
+    .then(() => res.status(200).json({ message: 'Objet modifié !', sauceObject}))
+    .catch(error => res.status(400).json({ error }))
+    .catch(error => res.status(500).json({ error }));
 };  
