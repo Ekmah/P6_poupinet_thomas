@@ -1,4 +1,5 @@
 const express = require('express');
+const helmet = require('helmet');
 require('dotenv').config()
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -14,7 +15,7 @@ mongoose.connect('mongodb+srv://APIuser:jouvencia@clusteropenclassroomscl.seiyc.
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
-
+app.use(helmet());
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
