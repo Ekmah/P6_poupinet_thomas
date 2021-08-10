@@ -18,7 +18,6 @@ exports.getOneSauce = (req, res, next) => {
     _id: req.params.id
   }).then(
     (sauce) => {
-      console.log(process.env);
       res.status(200).json(sauce);
     }
   ).catch(
@@ -70,7 +69,7 @@ exports.getAllSauces = (req, res, next) => {
 exports.likeSauce = (req, res) => {
     Sauce.findOne({ _id: req.params.id })
       .then(sauce => {
-        const UserId = req.body.userId
+        const userId = req.body.userId
         const userWantsToLike = (req.body.like === 1)
         const userWantsToCancel = (req.body.like === 0)
         const userWantsToDislike = (req.body.like === -1)
@@ -102,7 +101,7 @@ exports.likeSauce = (req, res) => {
         updatedSauce.save()
         return updatedSauce
     })
-    .then(() => res.status(200).json({ message: 'Objet modifié !', sauceObject}))
+    .then(sauce => res.status(200).json({ message: 'Objet modifié !', sauce}))
     .catch(error => res.status(400).json({ error, message: "une erreure!!!" }))
     .catch(error => res.status(500).json({ error }));
 };  
